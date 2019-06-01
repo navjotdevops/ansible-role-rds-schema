@@ -1,0 +1,15 @@
+---
+# defaults file for database-schema
+db_user:
+db_endpoint:
+rds_password:
+db_port:
+schema1_db_username:
+schema1_db_password:
+schema1_db_name:
+schema2_db_username:
+schema2_db_password:
+schema2_db_name:
+schema3_db_username:
+schema3_db_password:
+schema3_db_name:

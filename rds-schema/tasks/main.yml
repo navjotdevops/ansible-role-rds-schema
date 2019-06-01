@@ -1,0 +1,54 @@
+---
+- name: Install required software
+  apt: name={{ item }} state=present
+  sudo: yes
+  with_items:
+    - build-essential
+    - python-dev
+    - libmysqlclient-dev
+    - python-pip
+    - mysql-client
+
+- name: Install the MySQL-python through pip
+  sudo: yes
+  pip:
+    name: "{{ item }}"
+    state: forcereinstall
+  with_items:
+    - pip
+    - MySQL-python
+
+- name: create integrationhub db
+  local_action:
+    module: mysql_db
+    collation: "utf8_general_ci"
+    encoding: utf8
+    name: "{{ item.name }}"
+    login_user: "{{ db_user }}"
+    login_host: "{{ db_endpoint }}"
+    login_password: "{{ rds_password }}"
+    login_port: "{{ db_port }}"
+  run_once: true
+  # no_log: True
+  with_items:
+    - {name: '{{schema1}}'}
+    - {name: '{{schema2}}'}
+    - {name: '{{schema3}}'}
+
+- name: create  db user
+  local_action:
+    module: mysql_user
+    name: "{{ item.name }}"
+    login_user: "{{ db_user }}"
+    login_host: "{{ db_endpoint }}"
+    login_password: "{{ rds_password }}"
+    password: "{{ item.password}}"
+    login_port: "{{ db_port }}"
+    priv: "{{item.schema_name}}.*:ALL"
+    host: "%"
+  run_once: true
+  # no_log: True
+  with_items:
+    - {name: '{{schema1_db_username}}', password: '{{schema1_db_password}}', schema_name: '{{schema1_db_name}}'}
+    - {name: '{{schema2_db_username}}', password: '{{schema2_db_password}}', schema_name: '{{schema2_db_name}}'}
+    - {name: '{{schema3_db_username}}', password: '{{schema3_db_password}}', schema_name: '{{schema3_db_name}}'}
